@@ -1,0 +1,39 @@
+name: Deploy to evgeny.io
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout app repo
+        uses: actions/checkout@v4
+
+      - name: Checkout target repo
+        uses: actions/checkout@v4
+        with:
+          repository: evgenyio/evgenyio.github.io
+          ssh-key: ${{ secrets.SITE_DEPLOY_KEY }}
+          path: site
+
+      - name: Deploy to /projects/luisterspoor/
+        run: |
+          mkdir -p site/projects/luisterspoor
+          rm -rf site/projects/luisterspoor/*
+          rsync -a --exclude .git --exclude .github ./ site/projects/luisterspoor/
+
+      - name: Commit and push
+        run: |
+          cd site
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add projects/luisterspoor
+          if git diff --cached --quiet; then
+            echo "No changes to deploy"
+          else
+            git commit -m "Deploy luisterspoor"
+            git push
+          fi
