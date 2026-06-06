@@ -23,7 +23,7 @@ jobs:
         run: |
           mkdir -p site/projects/luisterspoor
           rm -rf site/projects/luisterspoor/*
-          rsync -a --exclude .git --exclude .github ./ site/projects/luisterspoor/
+          rsync -a --exclude .git --exclude .github --exclude site ./ site/projects/luisterspoor/
 
       - name: Commit and push
         run: |
